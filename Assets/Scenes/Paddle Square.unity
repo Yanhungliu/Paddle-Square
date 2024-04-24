@@ -503,6 +503,7 @@ MonoBehaviour:
   ball: {fileID: 1836405211693641625}
   bottomPaddle: {fileID: 2128804139}
   topPaddle: {fileID: 1784883427}
+  arenaExtents: {x: 10, y: 10}
 --- !u!4 &1244388355
 Transform:
   m_ObjectHideFlags: 0
@@ -792,8 +793,12 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2856625093396346107, guid: 8ada68866b108f64e97f7f817acb65bb, type: 3}
+      propertyPath: constantXSpeed
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2856625093396346107, guid: 8ada68866b108f64e97f7f817acb65bb, type: 3}
       propertyPath: constantYSpeed
-      value: 0
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4200878310975757031, guid: 8ada68866b108f64e97f7f817acb65bb, type: 3}
       propertyPath: m_Name
