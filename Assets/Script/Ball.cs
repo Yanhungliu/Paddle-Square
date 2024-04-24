@@ -7,7 +7,7 @@ public class Ball : MonoBehaviour
     [SerializeField, Min(0f)]
 	float
 		constantXSpeed = 8f,
-		constantYSpeed = 0f;
+		constantYSpeed = 10f;
 
 	Vector2 position, velocity;
 
