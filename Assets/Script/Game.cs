@@ -16,6 +16,8 @@ public class Game : MonoBehaviour
 	
 	void Update ()
 	{
+		bottomPaddle.Move(ball.Position.x, arenaExtents.x);
+		topPaddle.Move(ball.Position.x, arenaExtents.x);
 		ball.Move();
         BounceYIfNeeded();
         BounceXIfNeeded();
