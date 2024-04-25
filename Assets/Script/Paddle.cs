@@ -94,8 +94,7 @@ public class Paddle : MonoBehaviour
 	{
 		score = newScore;
 		scoreText.SetText("{0}", newScore);
-		SetExten
-		ts(Mathf.Lerp(maxExtents, minExtents, newScore / (pointsToWin - 1f)));
+		SetExtents(Mathf.Lerp(maxExtents, minExtents, newScore / (pointsToWin - 1f)));
 	}
 
 	void ChangeTargetingBias () =>
