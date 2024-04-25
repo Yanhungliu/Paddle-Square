@@ -5,11 +5,15 @@ using TMPro;
 
 public class Game : MonoBehaviour
 {
+	[SerializeField]
+	LivelyCamera livelyCamera;
+
    [SerializeField]
 	Ball ball;
 
 	[SerializeField]
 	Paddle bottomPaddle, topPaddle;
+
     [SerializeField, Min(0f)]
 	Vector2 arenaExtents = new Vector2(10f, 10f);
 
@@ -23,6 +27,8 @@ public class Game : MonoBehaviour
 	float newGameDelay = 3f;
 
 	float countdownUntilNewGame;
+
+	
 
 
     void Awake () => countdownUntilNewGame = newGameDelay;
@@ -92,6 +98,7 @@ public class Game : MonoBehaviour
 
 		BounceXIfNeeded(bounceX);
 		bounceX = ball.Position.x - ball.Velocity.x * durationAfterBounce;
+		livelyCamera.PushXZ(ball.Velocity);
 		ball.BounceY(boundary);
 
 		
@@ -99,9 +106,14 @@ public class Game : MonoBehaviour
 		{
 			ball.SetXPositionAndSpeed(bounceX, hitFactor, durationAfterBounce);
 		}
-		else if (attacker.ScorePoint(pointsToWin))
+		else 
 		{
-			EndGame();
+			livelyCamera.JostleY();
+			if (attacker.ScorePoint(pointsToWin))
+			{
+				EndGame();
+			}
+
 		}
 
 	}
@@ -119,10 +131,12 @@ public class Game : MonoBehaviour
 		float xExtents = arenaExtents.x - ball.Extents;
 		if (x < -xExtents)
 		{
+			livelyCamera.PushXZ(ball.Velocity);
 			ball.BounceX(-xExtents);
 		}
 		else if (x> xExtents)
 		{
+			livelyCamera.PushXZ(ball.Velocity);
 			ball.BounceX(xExtents);
 		}
 	}
