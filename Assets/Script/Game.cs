@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Game : MonoBehaviour
 {
@@ -15,8 +16,16 @@ public class Game : MonoBehaviour
 	[SerializeField, Min(2)]
 	int pointsToWin = 3;
 
+	[SerializeField]
+	TextMeshPro countdownText;
+	
+	[SerializeField, Min(1f)]
+	float newGameDelay = 3f;
 
-    void Awake () => StartNewGame();
+	float countdownUntilNewGame;
+
+
+    void Awake () => countdownUntilNewGame = newGameDelay;
 	void StartNewGame ()
 	{
 		ball.StartNewGame();
@@ -28,10 +37,40 @@ public class Game : MonoBehaviour
 	{
 		bottomPaddle.Move(ball.Position.x, arenaExtents.x);
 		topPaddle.Move(ball.Position.x, arenaExtents.x);
+
+	if (countdownUntilNewGame <= 0f)
+		{
+			UpdateGame();
+		}
+		else
+		{
+			UpdateCountdown();
+		}
+	}
+	void UpdateGame ()
+	{
 		ball.Move();
-        BounceYIfNeeded();
-        BounceXIfNeeded(ball.Position.x);
+		BounceYIfNeeded();
+		BounceXIfNeeded(ball.Position.x);
 		ball.UpdateVisualization();
+	}
+
+	void UpdateCountdown ()
+	{
+		countdownUntilNewGame -= Time.deltaTime;
+		if (countdownUntilNewGame <= 0f)
+		{
+			countdownText.gameObject.SetActive(false);
+			StartNewGame();
+		}
+		else
+		{
+			float displayValue = Mathf.Ceil(countdownUntilNewGame);
+			if (displayValue < newGameDelay)
+			{
+				countdownText.SetText("{0}", displayValue);
+			}
+		}
 	}
 
     void BounceYIfNeeded ()
@@ -65,6 +104,14 @@ public class Game : MonoBehaviour
 			StartNewGame();
 		}
 
+	}
+
+	void EndGame ()
+	{
+		countdownUntilNewGame = newGameDelay;
+		countdownText.SetText("GAME OVER");
+		countdownText.gameObject.SetActive(true);
+		ball.EndGame();
 	}
 
     void BounceXIfNeeded (float x)
