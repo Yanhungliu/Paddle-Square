@@ -6,7 +6,8 @@ public class Ball : MonoBehaviour
 {
     [SerializeField, Min(0f)]
 	float
-		constantXSpeed = 8f,
+		maxXSpeed=20f,
+		startXSpeed = 8f,
 		constantYSpeed = 10f,
         extents=0.5f;
 
@@ -16,6 +17,8 @@ public class Ball : MonoBehaviour
     public float Extents => extents;
 	
 	public Vector2 Position => position;
+
+	public Vector2 Velocity => velocity;
 
     
 
@@ -29,8 +32,15 @@ public class Ball : MonoBehaviour
 	{
 		position = Vector2.zero;
 		UpdateVisualization();
-		velocity = new Vector2(constantXSpeed, -constantYSpeed);
+		velocity = new Vector2(startXSpeed, -constantYSpeed);
 	}
+
+	public void SetXPositionAndSpeed (float start, float speedFactor, float deltaTime)
+	{
+		velocity.x = maxXSpeed * speedFactor;
+		position.x = start + velocity.x * deltaTime;
+	}
+
 
     public void BounceX (float boundary)
 	{
@@ -43,6 +53,7 @@ public class Ball : MonoBehaviour
 		position.y = 2f * boundary - position.y;
 		velocity.y = -velocity.y;
 	}
+
 
 
 }

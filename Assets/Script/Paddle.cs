@@ -50,5 +50,15 @@ public class Paddle : MonoBehaviour
 		return x;
 	}
 
+
+
+    public bool HitBall (float ballX, float ballExtents, out float hitFactor)
+	{
+		 hitFactor =
+			(ballX - transform.localPosition.x) /
+			(extents + ballExtents);
+		return -1f <= hitFactor && hitFactor <= 1f;
+	}
+
     
 }
