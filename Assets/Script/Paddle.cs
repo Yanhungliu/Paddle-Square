@@ -17,13 +17,18 @@ public class Paddle : MonoBehaviour
 
     [SerializeField, Min(0f)]
 	float
-		extents = 4f,
+		minExtents = 4f,
+		maxExtents = 4f,
 		speed = 10f,
 		maxTargetingBias = 0.75f;
 
-	float targetingBias;
+	float extents,targetingBias;
 
 
+	void Awake ()
+	{
+		SetScore(0);
+	}
 
     public void Move (float target, float arenaExtents)
 	{
@@ -73,12 +78,6 @@ public class Paddle : MonoBehaviour
 	}
 
 
-	void SetScore (int newScore)
-	{
-		score = newScore;
-		scoreText.SetText("{0}", newScore);
-	}
-
 	public void StartNewGame ()
 	{
 		SetScore(0);
@@ -87,11 +86,27 @@ public class Paddle : MonoBehaviour
 
 	public bool ScorePoint (int pointsToWin)
 	{
-		SetScore(score + 1);
+		SetScore(score + 1, pointsToWin);
 		return score >= pointsToWin;
+	}
+
+	void SetScore (int newScore, float pointsToWin = 1000f)
+	{
+		score = newScore;
+		scoreText.SetText("{0}", newScore);
+		SetExten
+		ts(Mathf.Lerp(maxExtents, minExtents, newScore / (pointsToWin - 1f)));
 	}
 
 	void ChangeTargetingBias () =>
 		targetingBias = Random.Range(-maxTargetingBias, maxTargetingBias);
     
+
+	void SetExtents (float newExtents)
+	{
+		extents = newExtents;
+		Vector3 s = transform.localScale;
+		s.x = 2f * newExtents;
+		transform.localScale = s;
+	}
 }
