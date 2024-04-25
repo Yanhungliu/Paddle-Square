@@ -101,7 +101,7 @@ public class Game : MonoBehaviour
 		}
 		else if (attacker.ScorePoint(pointsToWin))
 		{
-			StartNewGame();
+			EndGame();
 		}
 
 	}
