@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using Script;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Serialization;
 
 public class Game : MonoBehaviour
 {
 	[SerializeField]
 	LivelyCamera livelyCamera;
-
-   [SerializeField]
-	Ball ball;
+	
+	[SerializeField]
+	Ball _currentBall ;
 
 	[SerializeField]
 	Paddle bottomPaddle, topPaddle;
@@ -26,25 +28,36 @@ public class Game : MonoBehaviour
 	[SerializeField, Min(1f)]
 	float newGameDelay = 3f;
 
-	float countdownUntilNewGame;
+	float _countdownUntilNewGame;
+	[SerializeField] 
+	private Transform buttons;
 
 	
-
-
-    void Awake () => countdownUntilNewGame = newGameDelay;
-	void StartNewGame ()
+	
+	public void SetCurrentBall(Ball currentBall)
 	{
-		ball.StartNewGame();
+		_currentBall = currentBall;
+	}
+
+    void Awake ()
+    {
+	    _countdownUntilNewGame = newGameDelay;
+	    PauseToChoose();
+    }
+
+    void StartNewGame ()
+	{
+		_currentBall.StartNewGame();
 		bottomPaddle.StartNewGame();
 		topPaddle.StartNewGame();
 	}
 	
 	void Update ()
 	{
-		bottomPaddle.Move(ball.Position.x, arenaExtents.x);
-		topPaddle.Move(ball.Position.x, arenaExtents.x);
+		bottomPaddle.Move(_currentBall.Position.x, arenaExtents.x);
+		topPaddle.Move(_currentBall.Position.x, arenaExtents.x);
 
-	if (countdownUntilNewGame <= 0f)
+	if (_countdownUntilNewGame <= 0f)
 		{
 			UpdateGame();
 		}
@@ -55,23 +68,23 @@ public class Game : MonoBehaviour
 	}
 	void UpdateGame ()
 	{
-		ball.Move();
+		_currentBall.Move();
 		BounceYIfNeeded();
-		BounceXIfNeeded(ball.Position.x);
-		ball.UpdateVisualization();
+		BounceXIfNeeded(_currentBall.Position.x);
+		_currentBall.UpdateVisualization();
 	}
 
 	void UpdateCountdown ()
 	{
-		countdownUntilNewGame -= Time.deltaTime;
-		if (countdownUntilNewGame <= 0f)
+		_countdownUntilNewGame -= Time.deltaTime;
+		if (_countdownUntilNewGame <= 0f)
 		{
 			countdownText.gameObject.SetActive(false);
 			StartNewGame();
 		}
 		else
 		{
-			float displayValue = Mathf.Ceil(countdownUntilNewGame);
+			float displayValue = Mathf.Ceil(_countdownUntilNewGame);
 			if (displayValue < newGameDelay)
 			{
 				countdownText.SetText("{0}", displayValue);
@@ -81,30 +94,30 @@ public class Game : MonoBehaviour
 
     void BounceYIfNeeded ()
 	{
-		float yExtents = arenaExtents.y - ball.Extents;
-		if (ball.Position.y < -yExtents)
+		float yExtents = arenaExtents.y - _currentBall.Extents;
+		if (_currentBall.Position.y < -yExtents)
 		{
 			BounceY(-yExtents,bottomPaddle,topPaddle);
 		}
-		else if (ball.Position.y > yExtents)
+		else if (_currentBall.Position.y > yExtents)
 		{
 			BounceY(yExtents,topPaddle,bottomPaddle);
 		} 
 	}
 	void BounceY (float boundary, Paddle defender,Paddle attacker)
 	{
-		float durationAfterBounce = (ball.Position.y - boundary) / ball.Velocity.y;
-		float bounceX = ball.Position.x - ball.Velocity.x * durationAfterBounce;
+		float durationAfterBounce = (_currentBall.Position.y - boundary) / _currentBall.Velocity.y;
+		float bounceX = _currentBall.Position.x - _currentBall.Velocity.x * durationAfterBounce;
 
 		BounceXIfNeeded(bounceX);
-		bounceX = ball.Position.x - ball.Velocity.x * durationAfterBounce;
-		livelyCamera.PushXZ(ball.Velocity);
-		ball.BounceY(boundary);
+		bounceX = _currentBall.Position.x - _currentBall.Velocity.x * durationAfterBounce;
+		livelyCamera.PushXZ(_currentBall.Velocity);
+		_currentBall.BounceY(boundary);
 
 		
-		if (defender.HitBall(bounceX, ball.Extents, out float hitFactor))
+		if (defender.HitBall(bounceX, _currentBall.Extents, out float hitFactor))
 		{
-			ball.SetXPositionAndSpeed(bounceX, hitFactor, durationAfterBounce);
+			_currentBall.SetXPositionAndSpeed(bounceX, hitFactor, durationAfterBounce);
 		}
 		else 
 		{
@@ -120,24 +133,31 @@ public class Game : MonoBehaviour
 
 	void EndGame ()
 	{
-		countdownUntilNewGame = newGameDelay;
+		_countdownUntilNewGame = newGameDelay;
 		countdownText.SetText("GAME OVER");
 		countdownText.gameObject.SetActive(true);
-		ball.EndGame();
+		_currentBall.EndGame();
+		PauseToChoose();
 	}
 
     void BounceXIfNeeded (float x)
 	{
-		float xExtents = arenaExtents.x - ball.Extents;
+		float xExtents = arenaExtents.x - _currentBall.Extents;
 		if (x < -xExtents)
 		{
-			livelyCamera.PushXZ(ball.Velocity);
-			ball.BounceX(-xExtents);
+			livelyCamera.PushXZ(_currentBall.Velocity);
+			_currentBall.BounceX(-xExtents);
 		}
 		else if (x> xExtents)
 		{
-			livelyCamera.PushXZ(ball.Velocity);
-			ball.BounceX(xExtents);
+			livelyCamera.PushXZ(_currentBall.Velocity);
+			_currentBall.BounceX(xExtents);
 		}
+	}
+
+	private void PauseToChoose()
+	{
+		Time.timeScale = 0;
+		buttons.gameObject.SetActive(true);
 	}
 }
