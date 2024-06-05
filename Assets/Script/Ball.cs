@@ -1,86 +1,194 @@
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Script
 {
-	public class Ball : MonoBehaviour
-	{
-		[SerializeField, Min(0f)]
-		float
-			maxXSpeed=20f,
-			maxStartXSpeed = 2f,
-			startXSpeed = 8f,
-			constantYSpeed = 10f,
-			extents=0.5f;
+    public class Ball : MonoBehaviour
+    {
+        [SerializeField, Min(0f)] float
+            maxXSpeed = 20f,
+            maxStartXSpeed = 2f,
+            constantYSpeed = 10f,
+            extents = 0.5f;
+
+        [SerializeField, Min(0f)] Vector2 arenaExtents = new Vector2(10f, 10f);
+
+        [SerializeField] Paddle bottomPaddle, topPaddle;
+
+        [SerializeField] LivelyCamera livelyCamera;
 
 
-		Vector2 _position, _velocity;
+        Vector2 _position, _velocity;
 
-		public float Extents => extents;
-	
-		public Vector2 Position => _position;
+        private float Extents => extents;
 
-		public Vector2 Velocity => _velocity;
+        public Vector2 Position => _position;
 
-    
-
-		public void UpdateVisualization () =>
-			transform.localPosition = new Vector3(_position.x, 0f, _position.y);
-
-		public void Move () => _position += _velocity * Time.deltaTime;
-
-		void Awake () => gameObject.SetActive(false);
-
-		
-
-		public void StartNewGame ()
-		{
-			_position = Vector2.zero;
-			UpdateVisualization();
-			_velocity.x = Random.Range(-maxStartXSpeed, maxStartXSpeed);
-			_velocity.y = -constantYSpeed;
-			gameObject.SetActive(true);
-		}
-
-		public void EndGame ()
-		{
-			_position.x = 0f;
-			gameObject.SetActive(false);
-		}
-
-		public void SetXPositionAndSpeed (float start, float speedFactor, float deltaTime)
-		{
-			_velocity.x = maxXSpeed * speedFactor;
-			_position.x = start + _velocity.x * deltaTime;
-		}
+        private Vector2 Velocity => _velocity;
 
 
-		public void BounceX (float boundary)
-		{
-			_position.x = 2f * boundary - _position.x;
-			_velocity.x = -_velocity.x;
-		}
+        private void UpdateVisualization() =>
+            transform.localPosition = new Vector3(_position.x, 0f, _position.y);
 
-		public void BounceY (float boundary)
-		{
-			_position.y = 2f * boundary - _position.y;
-			_velocity.y = -_velocity.y;
-		}
+        private void Move() => _position += _velocity * Time.deltaTime;
 
 
-		public void SetAttributes(float sizeTimes, BallInfo ballInfo)
-		{
-			extents = sizeTimes*extents;
-			transform.localScale = Vector3.one * sizeTimes;
-			
-		
-			
-			GetComponent<Renderer>().material.color =ballInfo switch
-			{
-				BallInfo.Normal => Color.yellow,
-				BallInfo.Color => Color.green,
-				_ => Color.white
-			};
-		}
-	}
+        private void Awake()
+        {
+            FindObjectOfType<GameSetupManager>().GameModeSelected += OnGameModeSelected;
+        }
+
+        void Start() => StartNewGame();
+
+        private void Update()
+        {
+            UpdateGame();
+        }
+        
+        
+        private void OnGameModeSelected(Difficulty difficulty)
+        {
+            Debug.Log("Selected game mode: " + difficulty);
+            float size;
+
+            switch (difficulty)
+            {
+                case Difficulty.Easy:
+                    maxXSpeed = 10f;
+                    maxStartXSpeed = 1f;
+                    size = 2;
+                    SetAttributes(size,difficulty);
+                    
+                    break;
+                case Difficulty.Normal:
+                    maxXSpeed = 70f;
+                    maxStartXSpeed = 20f;
+                    size = 1;
+                    SetAttributes(size,difficulty);
+                    break;
+                case Difficulty.Hard:
+                    maxXSpeed = 100f;
+                    maxStartXSpeed = 100f;
+                    size = 0.5f;
+                    SetAttributes(size,difficulty);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, null);
+            }
+            
+        }
+
+
+        void UpdateGame()
+        {
+            Move();
+            BounceYIfNeeded();
+            BounceXIfNeeded(Position.x);
+            UpdateVisualization();
+        }
+
+        private void StartNewGame()
+        {
+            _position = Vector2.zero;
+            UpdateVisualization();
+            _velocity.x = Random.Range(-maxStartXSpeed, maxStartXSpeed);
+            _velocity.y = -constantYSpeed;
+            gameObject.SetActive(true);
+        }
+
+        public void EndGame()
+        {
+            _position.x = 0f;
+            gameObject.SetActive(false);
+        }
+
+        private void SetXPositionAndSpeed(float start, float speedFactor, float deltaTime)
+        {
+            _velocity.x = maxXSpeed * speedFactor;
+            _position.x = start + _velocity.x * deltaTime;
+        }
+
+
+        private void BounceX(float boundary)
+        {
+            _position.x = 2f * boundary - _position.x;
+            _velocity.x = -_velocity.x;
+        }
+
+        private void BounceY(float boundary)
+        {
+            _position.y = 2f * boundary - _position.y;
+            _velocity.y = -_velocity.y;
+        }
+
+        void BounceYIfNeeded()
+        {
+            float yExtents = arenaExtents.y - Extents;
+            if (Position.y < -yExtents)
+            {
+                BounceY(-yExtents, bottomPaddle, topPaddle);
+            }
+            else if (Position.y > yExtents)
+            {
+                BounceY(yExtents, topPaddle, bottomPaddle);
+            }
+        }
+
+        void BounceY(float boundary, Paddle defender, Paddle attacker)
+        {
+            float durationAfterBounce = (Position.y - boundary) / Velocity.y;
+            float bounceX = Position.x - Velocity.x * durationAfterBounce;
+
+            BounceXIfNeeded(bounceX);
+            bounceX = Position.x - Velocity.x * durationAfterBounce;
+            livelyCamera.PushXZ(Velocity);
+            BounceY(boundary);
+
+
+            if (defender.HitBall(bounceX, Extents, out float hitFactor))
+            {
+                SetXPositionAndSpeed(bounceX, hitFactor, durationAfterBounce);
+            }
+            else
+            {
+                livelyCamera.JostleY();
+                if (attacker.ScorePoint(3))
+                {
+                    EndGame();
+                }
+            }
+        }
+
+        void BounceXIfNeeded(float x)
+        {
+            float xExtents = arenaExtents.x - Extents;
+            if (x < -xExtents)
+            {
+                livelyCamera.PushXZ(Velocity);
+                BounceX(-xExtents);
+            }
+            else if (x > xExtents)
+            {
+                livelyCamera.PushXZ(Velocity);
+                BounceX(xExtents);
+            }
+        }
+
+
+        public void SetAttributes(float sizeTimes,Difficulty difficulty)
+        {
+            extents = sizeTimes * extents;
+            transform.localScale = Vector3.one * sizeTimes;
+
+
+            GetComponent<Renderer>().material.color = difficulty switch
+            {
+                Difficulty.Easy => Color.yellow,
+                Difficulty.Normal => Color.green,
+                Difficulty.Hard=> Color.red,
+                _ => throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, null)
+            };
+        }
+    }
 }
-
