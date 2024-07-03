@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Script
@@ -17,6 +18,8 @@ namespace Script
         [SerializeField] Paddle bottomPaddle, topPaddle;
 
         [SerializeField] LivelyCamera livelyCamera;
+        
+        public RectTransform buttons;
 
 
         Vector2 _position, _velocity;
@@ -27,6 +30,8 @@ namespace Script
 
         private Vector2 Velocity => _velocity;
 
+        public bool canMove;
+
 
         private void UpdateVisualization() =>
             transform.localPosition = new Vector3(_position.x, 0f, _position.y);
@@ -36,7 +41,7 @@ namespace Script
 
         private void Awake()
         {
-            FindObjectOfType<GameSetupManager>().GameModeSelected += OnGameModeSelected;
+            FindObjectOfType<Game>().SendGameModeEventHandler += SetGameMode;
         }
 
         void Start() => StartNewGame();
@@ -45,9 +50,9 @@ namespace Script
         {
             UpdateGame();
         }
-        
-        
-        private void OnGameModeSelected(Difficulty difficulty)
+
+
+        private void SetGameMode(Difficulty difficulty)
         {
             Debug.Log("Selected game mode: " + difficulty);
             float size;
@@ -58,30 +63,32 @@ namespace Script
                     maxXSpeed = 10f;
                     maxStartXSpeed = 1f;
                     size = 2;
-                    SetAttributes(size,difficulty);
-                    
+                    SetAttributes(size, difficulty);
+
                     break;
                 case Difficulty.Normal:
-                    maxXSpeed = 70f;
-                    maxStartXSpeed = 20f;
+                    maxXSpeed = 30f;
+                    maxStartXSpeed = 10f;
                     size = 1;
-                    SetAttributes(size,difficulty);
+                    SetAttributes(size, difficulty);
                     break;
                 case Difficulty.Hard:
-                    maxXSpeed = 100f;
-                    maxStartXSpeed = 100f;
+                    maxXSpeed = 50f;
+                    maxStartXSpeed = 30f;
                     size = 0.5f;
-                    SetAttributes(size,difficulty);
+                    SetAttributes(size, difficulty);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, null);
             }
-            
         }
 
 
-        void UpdateGame()
+        private void UpdateGame()
         {
+            if (!canMove)
+                return;
+
             Move();
             BounceYIfNeeded();
             BounceXIfNeeded(Position.x);
@@ -97,10 +104,11 @@ namespace Script
             gameObject.SetActive(true);
         }
 
-        public void EndGame()
+        private void EndGame()
         {
             _position.x = 0f;
             gameObject.SetActive(false);
+            buttons.gameObject.SetActive(true);
         }
 
         private void SetXPositionAndSpeed(float start, float speedFactor, float deltaTime)
@@ -176,7 +184,7 @@ namespace Script
         }
 
 
-        public void SetAttributes(float sizeTimes,Difficulty difficulty)
+        private void SetAttributes(float sizeTimes, Difficulty difficulty)
         {
             extents = sizeTimes * extents;
             transform.localScale = Vector3.one * sizeTimes;
@@ -186,7 +194,7 @@ namespace Script
             {
                 Difficulty.Easy => Color.yellow,
                 Difficulty.Normal => Color.green,
-                Difficulty.Hard=> Color.red,
+                Difficulty.Hard => Color.red,
                 _ => throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, null)
             };
         }

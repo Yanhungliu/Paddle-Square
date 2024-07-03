@@ -26,18 +26,17 @@ namespace Script
 
         private float _extents, _targetingBias;
 
-       
-        private void Start() => FindObjectOfType<GameSetupManager>().GameModeSelected += OnGameModeSelected;
+
+        private void Awake() => FindObjectOfType<Game>().SendGameModeEventHandler+= SetGameMode;
 
 
         void Update()
         {
             OnPaddleMove(currentBall.Position.x, arenaExtents.x);
-            
         }
 
 
-        private void OnGameModeSelected(Difficulty difficulty)
+        private void SetGameMode(Difficulty difficulty)
         {
             Debug.Log("Paddle event");
             switch (difficulty)
@@ -54,14 +53,17 @@ namespace Script
                 default:
                     throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, null);
             }
-        }
-        
 
-        private void OnPaddleMove(float target, float arenaExtents)
+            SetScore(0);
+            ChangeTargetingBias();
+        }
+
+
+        private void OnPaddleMove(float target, float arena)
         {
             Vector3 p = transform.localPosition;
             p.x = isAI ? AdjustByAI(p.x, target) : AdjustByPlayer(p.x);
-            float limit = arenaExtents - _extents;
+            float limit = arena - _extents;
             p.x = Mathf.Clamp(p.x, -limit, limit);
             transform.localPosition = p;
         }
@@ -106,11 +108,7 @@ namespace Script
         }
 
 
-        public void StartNewGame()
-        {
-            SetScore(0);
-            ChangeTargetingBias();
-        }
+        
 
         public bool ScorePoint(int pointsToWin)
         {
@@ -123,6 +121,7 @@ namespace Script
             _score = newScore;
             scoreText.SetText("{0}", newScore);
             SetExtents(Mathf.Lerp(maxExtents, minExtents, newScore / (pointsToWin - 1f)));
+            
         }
 
         private void ChangeTargetingBias() =>
@@ -131,6 +130,7 @@ namespace Script
 
         private void SetExtents(float newExtents)
         {
+            maxExtents = newExtents;
             _extents = newExtents;
             Vector3 s = transform.localScale;
             s.x = 2f * newExtents;

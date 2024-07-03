@@ -220,7 +220,7 @@ GameObject:
   - component: {fileID: 378695443}
   - component: {fileID: 378695442}
   m_Layer: 5
-  m_Name: SizeButton
+  m_Name: NormalButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -533,7 +533,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Normal
+  m_Text: Easy
 --- !u!222 &678622881
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -706,7 +706,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: color
+  m_Text: Hard
 --- !u!222 &716348812
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -850,7 +850,7 @@ GameObject:
   - component: {fileID: 848771525}
   - component: {fileID: 848771524}
   m_Layer: 5
-  m_Name: NormalButton
+  m_Name: EasyButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1187,7 +1187,7 @@ GameObject:
   - component: {fileID: 982781290}
   - component: {fileID: 982781289}
   m_Layer: 5
-  m_Name: ColorButton
+  m_Name: HardButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1309,11 +1309,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 737253423325168703, guid: e1ad5b717df2c0a4cba85ef49b884fec, type: 3}
       propertyPath: m_fontSize
-      value: 32
+      value: 34
       objectReference: {fileID: 0}
     - target: {fileID: 737253423325168703, guid: e1ad5b717df2c0a4cba85ef49b884fec, type: 3}
       propertyPath: m_fontSizeBase
-      value: 32
+      value: 34
       objectReference: {fileID: 0}
     - target: {fileID: 1040674748865954783, guid: e1ad5b717df2c0a4cba85ef49b884fec, type: 3}
       propertyPath: m_Name
@@ -1477,7 +1477,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Size
+  m_Text: Normal
 --- !u!222 &1221053549
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1516,15 +1516,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f3c0cdbd70e42b4db655aba4cf6852b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  livelyCamera: {fileID: 963194229}
-  currentBall: {fileID: 0}
-  bottomPaddle: {fileID: 1784883427}
-  topPaddle: {fileID: 2128804139}
-  arenaExtents: {x: 10, y: 10}
   pointsToWin: 3
   countdownText: {fileID: 1956157481}
   newGameDelay: 3
-  buttons: {fileID: 1463892295}
+  ballInstance: {fileID: 1262900613}
 --- !u!4 &1244388355
 Transform:
   m_ObjectHideFlags: 0
@@ -1552,11 +1547,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a51b06fe8a094574d86e1abae1666191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballPrefab: {fileID: 2856625093396346107, guid: 8ada68866b108f64e97f7f817acb65bb, type: 3}
-  normalButton: {fileID: 848771524}
-  sizeButton: {fileID: 378695442}
-  colorButton: {fileID: 982781289}
+  easyButton: {fileID: 848771524}
+  normalButton: {fileID: 378695442}
+  hardButton: {fileID: 982781289}
   buttons: {fileID: 1463892295}
+--- !u!114 &1262900613 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2856625093396346107, guid: 8ada68866b108f64e97f7f817acb65bb, type: 3}
+  m_PrefabInstance: {fileID: 2078474941}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1750c885c7963b942b8ad1fb1e486ee4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1307811154
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1998,6 +2003,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6357446641818136643, guid: 20f0503ae31475e4ba6f77fe8de711f4, type: 3}
+      propertyPath: isAI
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6357446641818136643, guid: 20f0503ae31475e4ba6f77fe8de711f4, type: 3}
       propertyPath: scoreText
       value: 
       objectReference: {fileID: 1437736835}
@@ -2005,6 +2014,10 @@ PrefabInstance:
       propertyPath: minExtents
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6357446641818136643, guid: 20f0503ae31475e4ba6f77fe8de711f4, type: 3}
+      propertyPath: currentBall
+      value: 
+      objectReference: {fileID: 1262900613}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2045,6 +2058,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2856625093396346107, guid: 8ada68866b108f64e97f7f817acb65bb, type: 3}
+      propertyPath: buttons
+      value: 
+      objectReference: {fileID: 1463892295}
+    - target: {fileID: 2856625093396346107, guid: 8ada68866b108f64e97f7f817acb65bb, type: 3}
+      propertyPath: topPaddle
+      value: 
+      objectReference: {fileID: 2128804139}
+    - target: {fileID: 2856625093396346107, guid: 8ada68866b108f64e97f7f817acb65bb, type: 3}
+      propertyPath: bottomPaddle
+      value: 
+      objectReference: {fileID: 1784883427}
+    - target: {fileID: 2856625093396346107, guid: 8ada68866b108f64e97f7f817acb65bb, type: 3}
+      propertyPath: livelyCamera
+      value: 
+      objectReference: {fileID: 963194229}
     - target: {fileID: 4200878310975757031, guid: 8ada68866b108f64e97f7f817acb65bb, type: 3}
       propertyPath: m_Name
       value: Ball
@@ -2162,6 +2191,10 @@ PrefabInstance:
       propertyPath: minExtents
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6357446641818136643, guid: 20f0503ae31475e4ba6f77fe8de711f4, type: 3}
+      propertyPath: currentBall
+      value: 
+      objectReference: {fileID: 1262900613}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
