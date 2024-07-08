@@ -29,6 +29,7 @@ namespace Script
         private void SendGameMode(Difficulty difficulty)
         {
             SendGameModeEventHandler?.Invoke(difficulty);
+            StartNewGame();
         }
 
 
@@ -36,7 +37,7 @@ namespace Script
         {
             if (_countdownUntilNewGame <= 0f)
             {
-                StartBallMovement();
+                
             }
             else
             {
@@ -51,6 +52,7 @@ namespace Script
             if (_countdownUntilNewGame <= 0f)
             {
                 countdownText.gameObject.SetActive(false);
+                _countdownUntilNewGame = newGameDelay;
             }
             else
             {
@@ -62,16 +64,12 @@ namespace Script
             }
         }
 
-        void StartBallMovement()
-        {
-            ballInstance.canMove = true;
-        }
+        
 
 
-        void EndGame()
+        void StartNewGame()
         {
-            _countdownUntilNewGame = newGameDelay;
-            countdownText.SetText("GAME OVER");
+            
             countdownText.gameObject.SetActive(true);
         }
     }

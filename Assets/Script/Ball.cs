@@ -29,8 +29,7 @@ namespace Script
         public Vector2 Position => _position;
 
         private Vector2 Velocity => _velocity;
-
-        public bool canMove;
+        
 
 
         private void UpdateVisualization() =>
@@ -86,9 +85,6 @@ namespace Script
 
         private void UpdateGame()
         {
-            if (!canMove)
-                return;
-
             Move();
             BounceYIfNeeded();
             BounceXIfNeeded(Position.x);
