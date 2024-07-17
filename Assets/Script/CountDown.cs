@@ -4,21 +4,18 @@ using UnityEngine.Serialization;
 
 namespace Script
 {
-    public class Game : MonoBehaviour
+    public class CountDown : MonoBehaviour
     {
         public delegate void GameModeEventHandler(Difficulty difficulty);
 
         public event GameModeEventHandler SendGameModeEventHandler;
 
-        [SerializeField, Min(2)] int pointsToWin = 3;
 
         [SerializeField] TextMeshPro countdownText;
 
         [SerializeField, Min(1f)] float newGameDelay = 3f;
 
         float _countdownUntilNewGame;
-
-        [SerializeField] private Ball ballInstance;
 
         void Awake()
         {
@@ -37,7 +34,6 @@ namespace Script
         {
             if (_countdownUntilNewGame <= 0f)
             {
-                
             }
             else
             {
@@ -64,12 +60,9 @@ namespace Script
             }
         }
 
-        
-
 
         void StartNewGame()
         {
-            
             countdownText.gameObject.SetActive(true);
         }
     }

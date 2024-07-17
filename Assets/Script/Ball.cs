@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
@@ -13,13 +14,14 @@ namespace Script
             constantYSpeed = 10f,
             extents = 0.5f;
 
-        [SerializeField, Min(0f)] Vector2 arenaExtents = new Vector2(10f, 10f);
 
         [SerializeField] Paddle bottomPaddle, topPaddle;
 
         [SerializeField] LivelyCamera livelyCamera;
-        
-        public RectTransform buttons;
+
+        [SerializeField] private Score scoreAI;
+
+        [SerializeField] private Score scorePlayer;
 
 
         Vector2 _position, _velocity;
@@ -28,8 +30,7 @@ namespace Script
 
         public Vector2 Position => _position;
 
-        private Vector2 Velocity => _velocity;
-        
+        public Vector2 Velocity => _velocity;
 
 
         private void UpdateVisualization() =>
@@ -40,7 +41,7 @@ namespace Script
 
         private void Awake()
         {
-            FindObjectOfType<Game>().SendGameModeEventHandler += SetGameMode;
+            FindObjectOfType<CountDown>().SendGameModeEventHandler += SetGameMode;
         }
 
         void Start() => StartNewGame();
@@ -100,12 +101,6 @@ namespace Script
             gameObject.SetActive(true);
         }
 
-        private void EndGame()
-        {
-            _position.x = 0f;
-            gameObject.SetActive(false);
-            buttons.gameObject.SetActive(true);
-        }
 
         private void SetXPositionAndSpeed(float start, float speedFactor, float deltaTime)
         {
@@ -128,18 +123,18 @@ namespace Script
 
         void BounceYIfNeeded()
         {
-            float yExtents = arenaExtents.y - Extents;
+            float yExtents = Arena.ArenaExtent.y - Extents;
             if (Position.y < -yExtents)
             {
-                BounceY(-yExtents, bottomPaddle, topPaddle);
+                BounceY(-yExtents, bottomPaddle);
             }
             else if (Position.y > yExtents)
             {
-                BounceY(yExtents, topPaddle, bottomPaddle);
+                BounceY(yExtents, topPaddle);
             }
         }
 
-        void BounceY(float boundary, Paddle defender, Paddle attacker)
+        void BounceY(float boundary, Paddle defender)
         {
             float durationAfterBounce = (Position.y - boundary) / Velocity.y;
             float bounceX = Position.x - Velocity.x * durationAfterBounce;
@@ -150,23 +145,34 @@ namespace Script
             BounceY(boundary);
 
 
-            if (defender.HitBall(bounceX, Extents, out float hitFactor))
+            if (defender.HasHitBall(bounceX, Extents, out float hitFactor))
             {
                 SetXPositionAndSpeed(bounceX, hitFactor, durationAfterBounce);
             }
             else
             {
                 livelyCamera.JostleY();
-                if (attacker.ScorePoint(3))
+                if (Position.y<0)
                 {
-                    EndGame();
+                    if (scoreAI.ScorePoint(3))
+                    {
+                        scoreAI.EndGame();
+                    }
                 }
+                else if (Position.y>0)
+                {
+                    if (scorePlayer.ScorePoint(3))
+                    {
+                        scorePlayer.EndGame();
+                    }
+                }
+                
             }
         }
 
         void BounceXIfNeeded(float x)
         {
-            float xExtents = arenaExtents.x - Extents;
+            float xExtents = Arena.ArenaExtent.x - Extents;
             if (x < -xExtents)
             {
                 livelyCamera.PushXZ(Velocity);
